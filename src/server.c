@@ -15,7 +15,7 @@ int main()
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(PORT);
 	serverAddr.sin_addr.s_addr = inet_addr(LOCALHOST);
-	int opt = 1;
+	int opt = 1; // Set to True so can Reuse Address.
 	setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	bind(serverFD, (SA*) &serverAddr, sizeof(serverAddr));
 	listen(serverFD, MAXCONN);
@@ -23,10 +23,10 @@ int main()
 	{
 		int clientAddrSize = sizeof(clientAddr);
 		int clientFD = accept(serverFD, (SA*) &clientAddr, &clientAddrSize);
-		char buff[100]; // 100 Bytes
-		printf("%d",clientAddr.sin_addr.s_addr);
-		read(clientFD, buff, 99);
+		char buff[1000]; // 100 Bytes
+		read(clientFD, buff, 999);
 		printf(buff);
 		close(clientFD);
 	}
+	return 0;
 }
