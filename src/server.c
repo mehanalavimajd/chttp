@@ -1,21 +1,32 @@
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <stdio.h>		
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h> 
-int main(){
-	int fd = socket(AF_INET, SOCK_STREAM, 0);
-	struct in_addr localhost; 
-	inet_aton("127.0.0.1", &localhost); // localhost addr should be bytes not char *
-	struct sockaddr_in addr = {AF_INET, htons(8080), localhost}; // htons(8080) turns it into bytes	
-	char *opt = "w";
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR , opt, sizeof(opt));
-	bind(fd, &addr, sizeof(addr));
-	while(1){
-		write(fd, "hello", 6);
-		sleep(1);
-		printf("S");
-		fflush(stdout);
+#include <stdio.h>
+#include <unistd.h>
+#define PORT 8010
+#define MAXCONN 20
+#define LOCALHOST "127.0.0.1"
+#define SA struct sockaddr
+int main()
+{
+	int serverFD = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in serverAddr, clientAddr;
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(PORT);
+	serverAddr.sin_addr.s_addr = inet_addr(LOCALHOST);
+	int opt = 1;
+	setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	bind(serverFD, (SA*) &serverAddr, sizeof(serverAddr));
+	listen(serverFD, MAXCONN);
+	while (1)
+	{
+		int clientAddrSize = sizeof(clientAddr);
+		int clientFD = accept(serverFD, (SA*) &clientAddr, &clientAddrSize);
+		char buff[100]; // 100 Bytes
+		printf("%d",clientAddr.sin_addr.s_addr);
+		read(clientFD, buff, 99);
+		printf(buff);
+		close(clientFD);
 	}
-	return 0;
 }
