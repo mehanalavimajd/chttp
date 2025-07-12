@@ -19,13 +19,16 @@ int main()
 	setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	bind(serverFD, (SA*) &serverAddr, sizeof(serverAddr));
 	listen(serverFD, MAXCONN);
+	int i = 0;
 	while (1)
 	{
 		int clientAddrSize = sizeof(clientAddr);
 		int clientFD = accept(serverFD, (SA*) &clientAddr, &clientAddrSize);
-		char buff[1000]; // 100 Bytes
-		read(clientFD, buff, 999);
-		printf(buff);
+		char buff[100000]; // 100 Bytes
+		read(clientFD, buff, 99999);
+		char *ret = "HTTP/1.1 201 Created\r\n\r\n";
+		write(clientFD, ret, strlen(ret));
+		printf("%s, %d\n", buff, i++);
 		close(clientFD);
 	}
 	return 0;
