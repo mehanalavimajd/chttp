@@ -14,8 +14,8 @@ struct firstLine
 	char *path;
 	char *httpVersion;
 };
-typedef struct firstLine firstLine;
-void createFirstLine(char *buff, firstLine *firstLine)
+typedef struct firstLine FirstLine;
+void createFirstLine(char *buff, FirstLine *firstLine)
 {
 	/*
 	 * NOTE: Caller must call freeFirstLine after the job is done. 
@@ -52,7 +52,7 @@ void createFirstLine(char *buff, firstLine *firstLine)
 	firstLine->path = firstLineProps[1];
 	firstLine->httpVersion = firstLineProps[2];
 }
-void freeFirstLine(firstLine *firstLine){
+void freeFirstLine(FirstLine *firstLine){
 	free(firstLine->httpVersion);
 	free(firstLine->method);
 	free(firstLine->path);
