@@ -8,7 +8,7 @@ struct header
 	char *headerValue;
 };
 typedef struct header Header;
-void headerParser(char *buff)
+Header *createHeaderParser(char *buff)
 {
 	int headerCount = DEFAULT_HEADER_COUNT;
 	Header *headers = malloc(headerCount * sizeof(Header));
@@ -20,45 +20,48 @@ void headerParser(char *buff)
 	{
 		if (currHeaderPos >= headerCount)
 		{
-			// printf("mama imma realloc!"); -- still works better that GDB
-			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT));
-			headerCount += DEFAULT_HEADER_COUNT;
+			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT + 1));
+			headerCount += DEFAULT_HEADER_COUNT + 1;
 		}
-
-		Header currHeader;
-		currHeader.headerName = malloc(1000);
-		currHeader.headerValue = malloc(1000);
+		headers[currHeaderPos].headerName = malloc(1000);
+		headers[currHeaderPos].headerValue = malloc(1000);
 		int pos = 0;
-		while (buff[i] != ':') // ++i passes to first char
+		while (buff[i] != ':')
 		{
-			currHeader.headerName[pos++] = buff[i++];
+			headers[currHeaderPos].headerName[pos++] = buff[i++];
 		}
+		headers[currHeaderPos].headerName[pos] = '\0';
 		i += 2; // pass space and :
 		pos = 0;
-		while (buff[i] != '\r') // ++i passes to first char
+		while (buff[i] != '\r')
 		{
-			currHeader.headerValue[pos++] = buff[i++];
+			headers[currHeaderPos].headerValue[pos++] = buff[i++];
 		}
-		printf("%s,%s\n", currHeader.headerName, currHeader.headerValue);
-		headers[currHeaderPos++] = currHeader;
-		i += 2;
+		headers[currHeaderPos].headerValue[pos] = '\0';
+		printf("%s,%s\n", headers[currHeaderPos].headerName, headers[currHeaderPos].headerValue);
+		currHeaderPos++;
+		i += 2; // pass \r\n
 		if (buff[i] == '\r')
 		{
-			printf("%d", currHeaderPos);
+			headers[currHeaderPos].headerName = NULL; // end
 			break;
 		}
 	}
-	for (int i = 0; i < currHeaderPos; i++)
+	return headers;
+}
+void freeHeaderParser(Header *headers)
+{
+	for (int i = 0; headers[i].headerName != NULL; i++)
 	{
 		free(headers[i].headerName);
 		free(headers[i].headerValue);
 	}
-
 	free(headers);
 }
 int main()
 {
-	headerParser(
+	Header *h;
+	h = createHeaderParser(
 	    "GET /r HTTP1.1\r\n"
 	    "hello: world\r\n"
 	    "life: good\r\n"
@@ -66,4 +69,7 @@ int main()
 	    "life: good\r\n"
 	    "life: good\r\n"
 	    "\r\n");
+	
+	printf("%d",strlen(h->headerName));
+	freeHeaderParser(h);
 }
