@@ -10,6 +10,15 @@ struct header
 typedef struct header Header;
 Header *createHeaderParser(char *buff)
 {
+	/*
+	* NOTE: Caller must call freeHeaderParser after they
+	* are done with it. 
+	*
+	* Gets the buffer from client, passes the first line
+	* and parse all the `name: value\r\n` format into t-
+	* he type Header and returns the pointer to first o-
+	* ne.
+	*/
 	int headerCount = DEFAULT_HEADER_COUNT;
 	Header *headers = malloc(headerCount * sizeof(Header));
 	int i = 0;
