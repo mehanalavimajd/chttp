@@ -36,27 +36,29 @@ Header *createHeaderParser(char *buff)
 				exit(1);
 			}
 		}
-		headers[currHeaderPos].headerName = malloc(1000);
-		headers[currHeaderPos].headerValue = malloc(1000);
+		char **currHeaderName = &headers[currHeaderPos].headerName; // Just for convenience. 
+		char **currHeaderValue = &headers[currHeaderPos].headerValue;
+		*currHeaderName = malloc(1000);
+		*currHeaderValue = malloc(1000);
 		int pos = 0;
 		while (buff[i] != ':')
 		{
-			headers[currHeaderPos].headerName[pos++] = buff[i++];
+			(*currHeaderName)[pos++] = buff[i++];
 		}
-		headers[currHeaderPos].headerName[pos] = '\0';
+		(*currHeaderName)[pos] = '\0';
 		i += 2; // pass space and :
 		pos = 0;
 		while (buff[i] != '\r')
 		{
-			headers[currHeaderPos].headerValue[pos++] = buff[i++];
+			(*currHeaderValue)[pos++] = buff[i++];
 		}
-		headers[currHeaderPos].headerValue[pos] = '\0';
-		printf("%s,%s\n", headers[currHeaderPos].headerName, headers[currHeaderPos].headerValue);
+		(*currHeaderValue)[pos] = '\0';
+		printf("%s,%s\n", *currHeaderName, *currHeaderValue);
 		currHeaderPos++;
 		i += 2; // pass \r\n
 		if (buff[i] == '\r')
 		{
-			headers[currHeaderPos].headerName = NULL; // end
+			*currHeaderName = NULL; // end
 			break;
 		}
 	}
