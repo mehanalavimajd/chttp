@@ -29,8 +29,12 @@ Header *createHeaderParser(char *buff)
 	{
 		if (currHeaderPos >= headerCount)
 		{
-			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT + 1));
-			headerCount += DEFAULT_HEADER_COUNT + 1;
+			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT));
+			headerCount += DEFAULT_HEADER_COUNT;
+			if(headerCount > MAX_HEADER_COUNT){
+				printf("\nMAX_HEADER_COUNT EXCEEDED.\n");
+				exit(1);
+			}
 		}
 		headers[currHeaderPos].headerName = malloc(1000);
 		headers[currHeaderPos].headerValue = malloc(1000);
@@ -78,7 +82,5 @@ int main()
 	    "life: good\r\n"
 	    "life: good\r\n"
 	    "\r\n");
-	
-	printf("%d",strlen(h->headerName));
 	freeHeaderParser(h);
 }
