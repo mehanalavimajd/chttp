@@ -53,10 +53,10 @@ Header *createHeaderParser(char *buff)
 			if (nameSize >= MAX_HEADER_FIELD_SIZE)
 				exitLog("MAX_HEADER_FIELD_SIZE exceed");
 			if (pos >= nameSize)
-				{
-					nameSize *= 2; // double the size of field
-					*currHeaderName = realloc(*currHeaderName, nameSize + 1);
-				}
+			{
+				nameSize *= 2; // double the size of field
+				*currHeaderName = realloc(*currHeaderName, nameSize + 1);
+			}
 			(*currHeaderName)[pos++] = buff[i++];
 		}
 		(*currHeaderName)[pos] = '\0';
@@ -67,10 +67,10 @@ Header *createHeaderParser(char *buff)
 			if (valueSize >= MAX_HEADER_FIELD_SIZE)
 				exitLog("MAX_HEADER_FIELD_SIZE exceed");
 			if (pos >= valueSize)
-				{
-					valueSize *= 2; // double the size of field
-					*currHeaderValue = realloc(*currHeaderValue, valueSize + 1);
-				}
+			{
+				valueSize *= 2; // double the size of field
+				*currHeaderValue = realloc(*currHeaderValue, valueSize + 1);
+			}
 			(*currHeaderValue)[pos++] = buff[i++];
 		}
 		(*currHeaderValue)[pos] = '\0';
