@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #define DEFAULT_HEADER_COUNT 30
 #define MAX_HEADER_COUNT 1000
+#define DEFAULT_HEADER_FIELD_SIZE 1000
+#define MAX_HEADER_FIELD_SIZE 20e6 // 20MB
+void exitLog(char *log)
+{
+	printf("\n%s\n", log);
+	exit(1);
+}
 struct header
 {
 	char *headerName;
@@ -11,14 +18,14 @@ typedef struct header Header;
 Header *createHeaderParser(char *buff)
 {
 	/*
-	* NOTE: Caller must call freeHeaderParser after they
-	* are done with it. 
-	*
-	* Gets the buffer from client, passes the first line
-	* and parse all the `name: value\r\n` format into t-
-	* he type Header and returns the pointer to first o-
-	* ne.
-	*/
+	 * NOTE: Caller must call freeHeaderParser after they
+	 * are done with it.
+	 *
+	 * Gets the buffer from client, passes the first line
+	 * and parse all the `name: value\r\n` format into t-
+	 * he type Header and returns the pointer to first o-
+	 * ne.
+	 */
 	int headerCount = DEFAULT_HEADER_COUNT;
 	Header *headers = malloc(headerCount * sizeof(Header));
 	int i = 0;
@@ -31,18 +38,25 @@ Header *createHeaderParser(char *buff)
 		{
 			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT));
 			headerCount += DEFAULT_HEADER_COUNT;
-			if(headerCount > MAX_HEADER_COUNT){
-				printf("\nMAX_HEADER_COUNT EXCEEDED.\n");
-				exit(1);
-			}
+			if (headerCount > MAX_HEADER_COUNT)
+				exitLog("MAX_HEADER_COUNT exceed");
 		}
-		char **currHeaderName = &headers[currHeaderPos].headerName; // Just for convenience. 
+		char **currHeaderName = &headers[currHeaderPos].headerName; // Just for convenience.
 		char **currHeaderValue = &headers[currHeaderPos].headerValue;
-		*currHeaderName = malloc(1000);
-		*currHeaderValue = malloc(1000);
+		long int nameSize = DEFAULT_HEADER_FIELD_SIZE;
+		long int valueSize = DEFAULT_HEADER_FIELD_SIZE;
+		*currHeaderName = malloc(nameSize);
+		*currHeaderValue = malloc(valueSize);
 		int pos = 0;
 		while (buff[i] != ':')
 		{
+			if (nameSize >= MAX_HEADER_FIELD_SIZE)
+				exitLog("MAX_HEADER_FIELD_SIZE exceed");
+			if (pos >= nameSize)
+				{
+					nameSize *= 2; // double the size of field
+					*currHeaderName = realloc(*currHeaderName, nameSize + 1);
+				}
 			(*currHeaderName)[pos++] = buff[i++];
 		}
 		(*currHeaderName)[pos] = '\0';
@@ -50,6 +64,13 @@ Header *createHeaderParser(char *buff)
 		pos = 0;
 		while (buff[i] != '\r')
 		{
+			if (valueSize >= MAX_HEADER_FIELD_SIZE)
+				exitLog("MAX_HEADER_FIELD_SIZE exceed");
+			if (pos >= valueSize)
+				{
+					valueSize *= 2; // double the size of field
+					*currHeaderValue = realloc(*currHeaderValue, valueSize + 1);
+				}
 			(*currHeaderValue)[pos++] = buff[i++];
 		}
 		(*currHeaderValue)[pos] = '\0';
@@ -58,7 +79,7 @@ Header *createHeaderParser(char *buff)
 		i += 2; // pass \r\n
 		if (buff[i] == '\r')
 		{
-			*currHeaderName = NULL; // end
+			headers[currHeaderPos].headerName = NULL; // end
 			break;
 		}
 	}
@@ -78,11 +99,9 @@ int main()
 	Header *h;
 	h = createHeaderParser(
 	    "GET /r HTTP1.1\r\n"
-	    "hello: world\r\n"
-	    "life: good\r\n"
-	    "life: good\r\n"
-	    "life: good\r\n"
-	    "life: good\r\n"
+	    "content-type: multipart/form-data; boundary=--------------------------213444826641001619888010\r\n"
+	    "content-type: multipart/form-data; boundary=--------------------------213444826641001619888010\r\n"
+	    "content-type: multipart/form-data; boundary=--------------------------213444826641001619888010\r\n"
 	    "\r\n");
 	freeHeaderParser(h);
 }
