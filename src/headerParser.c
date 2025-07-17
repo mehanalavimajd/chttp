@@ -28,7 +28,7 @@ Header *createHeaderParser(char *buff)
 	 *
 	 * Gets the buffer from  client, passes the first line
 	 * and parse all the `name: value\r\n` format into the
-	 * he type Header and returns the pointer to first one.
+	 * type Header and returns the pointer to first one.
 	 */
 	int headerCount = DEFAULT_HEADER_COUNT;
 	Header *headers = malloc(headerCount * sizeof(Header));
@@ -84,7 +84,7 @@ Header *createHeaderParser(char *buff)
 			(*currHeaderValue)[pos++] = buff[i++];
 		}
 		(*currHeaderValue)[pos] = '\0';
-		printf("%s,%s\n", *currHeaderName, *currHeaderValue);
+		printf("%s,%s\n", *currHeaderName, *currHeaderValue); // to check if it has correctly parsed - won't be in final code. 
 		currHeaderPos++;
 		i += 2; // pass \r\n
 		if (buff[i] == '\r')
