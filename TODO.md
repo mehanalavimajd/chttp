@@ -1,3 +1,2 @@
-1. comment more on src/headerParser.c
-2. implement realloc on headerParser header name and value.
-3. check null on malloc family. (boring).
+1. check null on malloc family. (boring).
+2. code review in stackExchange.
