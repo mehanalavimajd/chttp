@@ -9,6 +9,11 @@ void exitLog(char *log)
 	printf("\n%s\n", log);
 	exit(1);
 }
+void exitNullPointer(void *ptr)
+{
+	if (ptr == NULL)
+		exitLog("Malloc/Realloc failed.");
+}
 struct header
 {
 	char *headerName;
@@ -21,13 +26,13 @@ Header *createHeaderParser(char *buff)
 	 * NOTE: Caller must call freeHeaderParser after they
 	 * are done with it.
 	 *
-	 * Gets the buffer from client, passes the first line
-	 * and parse all the `name: value\r\n` format into t-
-	 * he type Header and returns the pointer to first o-
-	 * ne.
+	 * Gets the buffer from  client, passes the first line
+	 * and parse all the `name: value\r\n` format into the
+	 * he type Header and returns the pointer to first one.
 	 */
 	int headerCount = DEFAULT_HEADER_COUNT;
 	Header *headers = malloc(headerCount * sizeof(Header));
+	exitNullPointer(headers);
 	int i = 0;
 	while (buff[i++] != '\n')
 		; // to pass first line
@@ -37,6 +42,7 @@ Header *createHeaderParser(char *buff)
 		if (currHeaderPos >= headerCount)
 		{
 			headers = realloc(headers, sizeof(Header) * (headerCount + DEFAULT_HEADER_COUNT));
+			exitNullPointer(headers);
 			headerCount += DEFAULT_HEADER_COUNT;
 			if (headerCount > MAX_HEADER_COUNT)
 				exitLog("MAX_HEADER_COUNT exceed");
@@ -47,6 +53,8 @@ Header *createHeaderParser(char *buff)
 		long int valueSize = DEFAULT_HEADER_FIELD_SIZE;
 		*currHeaderName = malloc(nameSize);
 		*currHeaderValue = malloc(valueSize);
+		exitNullPointer(*currHeaderName);
+		exitNullPointer(*currHeaderValue);
 		int pos = 0;
 		while (buff[i] != ':')
 		{
@@ -56,6 +64,7 @@ Header *createHeaderParser(char *buff)
 			{
 				nameSize *= 2; // double the size of field
 				*currHeaderName = realloc(*currHeaderName, nameSize + 1);
+				exitNullPointer(*currHeaderName);
 			}
 			(*currHeaderName)[pos++] = buff[i++];
 		}
@@ -70,6 +79,7 @@ Header *createHeaderParser(char *buff)
 			{
 				valueSize *= 2; // double the size of field
 				*currHeaderValue = realloc(*currHeaderValue, valueSize + 1);
+				exitNullPointer(*currHeaderValue);
 			}
 			(*currHeaderValue)[pos++] = buff[i++];
 		}
